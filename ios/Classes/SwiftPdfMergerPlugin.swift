@@ -96,14 +96,9 @@ public class SwiftPdfMergerPlugin: NSObject, FlutterPlugin {
   do{
 
             if let paths = args["paths"] as? [String], let outputDirPath = args["outputDirPath"] as? String {
-
-                 guard let newPdfDocument = PDFDocument() else {
-                     return "error"
-                 }
-
-
+                       let newPdfDocument = PDFDocument()
                        for index in 0 ..< paths.count {
-                              guard let pdfRef = PDFDocument(url: URL(fileURLWithPath: paths[index])) else {
+                              guard let pdfDocument = PDFDocument(url: URL(fileURLWithPath: paths[index])) else {
                                   continue
                               }
 
@@ -115,7 +110,7 @@ public class SwiftPdfMergerPlugin: NSObject, FlutterPlugin {
                               }
                           }
 
-                      let documentDataForSaving = newPdfDocument.dataRepresentation()
+                      let documentDataForSaving = newPdfDocument.dataRepresentation()!
                       let urlWhereTheFileIsSaved = writeDataToTemporaryDirectory(withFilename: "temp-project-output.pdf", inFolder: nil, data: documentDataForSaving)
 
                       return outputDirPath
