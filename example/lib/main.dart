@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:ext_storage/ext_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,9 +19,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<PlatformFile> files;
-  List<String> filesPath;
-  String singleFile;
+  late List<PlatformFile> files;
+  late List<String> filesPath;
+  late String singleFile;
 
   @override
   void initState() {
@@ -43,7 +42,7 @@ class _MyAppState extends State<MyApp> {
               child: Column(children: [
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -64,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -85,7 +84,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -106,7 +105,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -127,7 +126,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -148,7 +147,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -169,7 +168,7 @@ class _MyAppState extends State<MyApp> {
                 SizedBox(height: 10),
                 TextButton(
                   style: ButtonStyle(overlayColor:
-                      MaterialStateProperty.resolveWith<Color>(
+                      MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                     if (states.contains(MaterialState.focused))
                       return Colors.red;
@@ -204,14 +203,14 @@ class _MyAppState extends State<MyApp> {
 
     if (isGranted) {
       try {
-        FilePickerResult result =
+        FilePickerResult? result =
             await FilePicker.platform.pickFiles(allowMultiple: true);
 
         if (result != null) {
           files.addAll(result.files);
 
           for (int i = 0; i < result.files.length; i++) {
-            filesPath.add(result.files[i].path);
+            filesPath.add(result.files[i].path!);
           }
         } else {
           // User canceled the picker
@@ -229,10 +228,10 @@ class _MyAppState extends State<MyApp> {
 
     if (isGranted) {
       try {
-        FilePickerResult result =
+        FilePickerResult? result =
             await FilePicker.platform.pickFiles(allowMultiple: false);
         if (result != null) {
-          singleFile = result.files[0].path;
+          singleFile = result.files[0].path!;
 
           switch (type) {
             case 1:
@@ -282,7 +281,7 @@ class _MyAppState extends State<MyApp> {
       MergeMultiplePDFResponse response = await PdfMerger.mergeMultiplePDF(
           paths: filesPath, outputDirPath: outputDirPath);
 
-      Get.snackbar("Info", response.message);
+      Get.snackbar("Info", response.message!);
 
       if (response.status == "success") {
         OpenFile.open(response.response);
@@ -302,7 +301,7 @@ class _MyAppState extends State<MyApp> {
           await PdfMerger.createPDFFromMultipleImage(
               paths: filesPath, outputDirPath: outputDirPath);
 
-      Get.snackbar("Info", response.message);
+      Get.snackbar("Info", response.message!);
 
       if (response.status == "success") {
         OpenFile.open(response.response);
@@ -321,10 +320,10 @@ class _MyAppState extends State<MyApp> {
       CreateImageFromPDFResponse response = await PdfMerger.createImageFromPDF(
           path: singleFile, outputDirPath: outputDirPath, createOneImage: true);
 
-      Get.snackbar("Info", response.status);
+      Get.snackbar("Info", response.status!);
 
       if (response.status == "success") {
-        OpenFile.open(response.response[0]);
+        OpenFile.open(response.response?[0]);
       }
 
       print(response.message);
@@ -341,7 +340,7 @@ class _MyAppState extends State<MyApp> {
           await PdfMerger.sizeFormPath(path: singleFile);
 
       if (response.status == "success") {
-        Get.snackbar("Info", response.response);
+        Get.snackbar("Info", response.response!);
       }
 
       print(response.status);
@@ -359,19 +358,19 @@ class _MyAppState extends State<MyApp> {
       Get.snackbar(
           "Info",
           "App Name : " +
-              response.appName +
+              response.appName! +
               "\n" +
               "Build Number : " +
-              response.buildDate +
+              response.buildDate! +
               "\n" +
               "Build Number with Time : " +
-              response.buildDateWithTime +
+              response.buildDateWithTime! +
               "\n" +
               "Package Name : " +
-              response.packageName +
+              response.packageName! +
               "\n" +
               "Version Number : " +
-              response.versionNumber +
+              response.versionNumber! +
               "\n" +
               "Build Number : " +
               response.buildNumber.toString());
@@ -381,42 +380,28 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool> checkPermission() async {
-    await PermissionHandler().requestPermissions([PermissionGroup.storage]);
-    PermissionStatus permission = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
-    print(permission);
-    if (permission == PermissionStatus.neverAskAgain) {
-      print("Go to Settings and provide media access");
-      return false;
-    } else if (permission == PermissionStatus.granted) {
-      return true;
-    } else {
-      return false;
-    }
+    return true;
+    // PermissionStatus permission = await Permission.storage.request();
+    // print(permission);
+    // if (permission == PermissionStatus.granted) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
   }
 
   Future<String> getFilePath(String fileStartName) async {
     String path;
-    if (GetPlatform.isIOS) {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      path = appDocDir.path;
-    } else if (GetPlatform.isAndroid) {
-      path = await ExtStorage.getExternalStoragePublicDirectory(
-          ExtStorage.DIRECTORY_DOWNLOADS);
-    }
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    path = appDocDir.path;
 
     return path + "/" + fileStartName + "ABCEFG5" + ".pdf";
   }
 
   Future<String> getFilePathImage(String fileStartName) async {
     String path;
-    if (GetPlatform.isIOS) {
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      path = appDocDir.path;
-    } else if (GetPlatform.isAndroid) {
-      path = await ExtStorage.getExternalStoragePublicDirectory(
-          ExtStorage.DIRECTORY_DOWNLOADS);
-    }
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    path = appDocDir.path;
 
     return path + "/" + fileStartName + "ABCEFG5" + ".png";
   }
