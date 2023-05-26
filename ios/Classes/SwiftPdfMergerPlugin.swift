@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import PDFKit
 import MobileCoreServices
 import ImageIO
 import AVFoundation
@@ -96,34 +97,26 @@ public class SwiftPdfMergerPlugin: NSObject, FlutterPlugin {
 
             if let paths = args["paths"] as? [String], let outputDirPath = args["outputDirPath"] as? String {
 
-                 guard UIGraphicsBeginPDFContextToFile(outputDirPath, CGRect.zero, nil) else {
-                     return "error"
-                 }
-                 guard let destContext = UIGraphicsGetCurrentContext() else {
+                 guard let newPdfDocument = PDFDocument() else {
                      return "error"
                  }
 
 
                        for index in 0 ..< paths.count {
-                              let pdfFile = paths[index]
-                              let pdfUrl = NSURL(fileURLWithPath: pdfFile)
-                              guard let pdfRef = CGPDFDocument(pdfUrl) else {
+                              guard let pdfRef = PDFDocument(url: URL(fileURLWithPath: paths[index])) else {
                                   continue
                               }
 
-                              for i in 1 ... pdfRef.numberOfPages {
-                                  if let page = pdfRef.page(at: i) {
-                                      var mediaBox = page.getBoxRect(.mediaBox)
-                                      destContext.beginPage(mediaBox: &mediaBox)
-                                      destContext.drawPDFPage(page)
-                                      destContext.endPage()
+                              for i in 0 ..< pdfDocument.pageCount  {
+                                  if let page = pdfDocument.page(at: i)! {
+                                      let copiedPage = page.copy() as! PDFPage
+                                      newPdfDocument.insert(copiedPage, at: newPdfDocument.pageCount)
                                   }
                               }
                           }
 
-
-                     destContext.closePDF()
-                     UIGraphicsEndPDFContext()
+                      let documentDataForSaving = newPdfDocument.dataRepresentation()
+                      let urlWhereTheFileIsSaved = writeDataToTemporaryDirectory(withFilename: "temp-project-output.pdf", inFolder: nil, data: documentDataForSaving)
 
                       return outputDirPath
              }
@@ -389,6 +382,28 @@ public class SwiftPdfMergerPlugin: NSObject, FlutterPlugin {
         return "error"
     }
 
+    public static func writeDataToTemporaryDirectory(withFilename: String, inFolder: String?, data: Data) -> URL? {
+        do {
+            var temporaryDirectory = FileManager.default.temporaryDirectory
+            if let inFolder = inFolder {
+                temporaryDirectory = temporaryDirectory.appendingPathComponent(inFolder)
+                if !FileManager.default.fileExists(atPath: temporaryDirectory.absoluteString) {
+                    do {
+                        try FileManager.default.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true, attributes: nil)
+                    } catch {
+                        print(error.localizedDescription);
+                    }
+                }
+            }
+            let temporaryFileURL = temporaryDirectory.appendingPathComponent(withFilename)
+            print("writeDataToTemporaryDirectory at url:\t\(temporaryFileURL)")
+            try data.write(to: temporaryFileURL)
+            return temporaryFileURL
+        } catch {
+            print(error)
+        }
+        return nil
+    }
 
     public static func mergeVertically(images: [UIImage]) -> UIImage? {
 
