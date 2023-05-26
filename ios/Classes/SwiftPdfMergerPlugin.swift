@@ -103,7 +103,7 @@ public class SwiftPdfMergerPlugin: NSObject, FlutterPlugin {
                               }
 
                               for i in 0 ..< pdfDocument.pageCount  {
-                                  if let page = pdfDocument.page(at: i)! {
+                                  if let page = pdfDocument.page(at: i) {
                                       let copiedPage = page.copy() as! PDFPage
                                       newPdfDocument.insert(copiedPage, at: newPdfDocument.pageCount)
                                   }
